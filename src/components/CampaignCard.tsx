@@ -44,18 +44,14 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaignAddress }) =
     });
 
     // Calulate the total funded balance percentage
-  let balancePercentage = 0;
+    const totalBalance = balance?.toString();
+    const totalGoal = goal?.toString();
+    let balancePercentage = (parseInt(totalBalance as string) / parseInt(totalGoal as string)) * 100;
 
-if (goal && balance) {
-    const goalBigInt = BigInt(goal);
-    const balanceBigInt = BigInt(balance);
-
-    // Avoid division by 0
-    if (goalBigInt !== 0n) {
-        balancePercentage = Number((balanceBigInt * 100n) / goalBigInt);
-        if (balancePercentage > 100) balancePercentage = 100;
+    // If balance is greater than or equal to goal, percentage should be 100
+    if (balancePercentage >= 100) {
+        balancePercentage = 100;
     }
-}
 
     return (
             <div className="flex flex-col justify-between max-w-sm p-6 bg-white border border-slate-200 rounded-lg shadow">

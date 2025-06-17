@@ -1,16 +1,16 @@
 'use client';
 import { client } from "@/app/client";
 import { CROWDFUNDING_FACTORY } from "@/app/constants/contracts";
-import { MyCampaignCard } from "@/components/MyCampaign";
+import { MyCampaignCard } from "@/components/MyCampaignCard";
 import { useState } from "react";
 import { getContract } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
+import {sepolia } from "thirdweb/chains";
 import { deployPublishedContract } from "thirdweb/deploys";
 import { useActiveAccount, useReadContract } from "thirdweb/react"
 
 export default function DashboardPage() {
     const account = useActiveAccount();
-
+    
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const contract = getContract({
@@ -25,7 +25,7 @@ export default function DashboardPage() {
         method: "function getUserCampaigns(address _user) view returns ((address campaignAddress, address owner, string name, uint256 creationTime)[])",
         params: [account?.address as string]
     });
-
+    
     return (
         <div className="mx-auto max-w-7xl px-4 mt-16 sm:px-6 lg:px-8">
             <div className="flex flex-row justify-between items-center mb-8">
@@ -50,7 +50,7 @@ export default function DashboardPage() {
                     )
                 )}
             </div>
-
+            
             {isModalOpen && (
                 <CreateCampaignModal
                     setIsModalOpen={setIsModalOpen}
@@ -75,38 +75,35 @@ const CreateCampaignModal = (
     const [campaignDescription, setCampaignDescription] = useState<string>("");
     const [campaignGoal, setCampaignGoal] = useState<number>(1);
     const [campaignDeadline, setCampaignDeadline] = useState<number>(1);
-
-
+    
     // Deploy contract from CrowdfundingFactory
     const handleDeployContract = async () => {
-  setIsDeployingContract(true);
-
-  try {
-    const contractAddress = await deployPublishedContract({
-      client: client,
-      chain: sepolia,
-      account: account!,
-      contractId: "CrowdFunding",
-      contractParams: {
-        name: campaignName,
-        description: campaignDescription,
-        deadline: campaignDeadline,
-        goal: campaignGoal,
-      },
-      publisher: "0xcF7c4C86c4728c9f038D02cbf343c37e360FBd95",
-      version: "1.0.0",
-    });
-
-    alert("Contract deployed successfully at " + contractAddress);
-  } catch (error) {
-    console.error("Deployment error:", error);
-    alert("Deployment failed: " + (error as Error).message);
-  } finally {
-    setIsDeployingContract(false);
-    setIsModalOpen(false);
-    refetch();
-  }
-};
+        setIsDeployingContract(true);
+        try {
+            console.log("Deploying contract...");
+            const contractAddress = await deployPublishedContract({
+                client: client,
+                chain: sepolia,
+                account: account!,
+                contractId: "Crowdfunding",
+                contractParams: {
+                _name: campaignName,
+                _description: campaignDescription,
+                _goal: campaignGoal,
+                _durationInDays: campaignDeadline,
+                },
+                publisher: "0xcF7c4C86c4728c9f038D02cbf343c37e360FBd95",
+                version: "1.0.0",
+            });
+            alert("Contract deployed successfully!");
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsDeployingContract(false);
+            setIsModalOpen(false);
+            refetch
+        }
+    };
 
     const handleCampaignGoal = (value: number) => {
         if (value < 1) {
@@ -136,8 +133,8 @@ const CreateCampaignModal = (
                 </div>
                 <div className="flex flex-col">
                     <label>Campaign Name:</label>
-                    <input
-                        type="text"
+                    <input 
+                        type="text" 
                         value={campaignName}
                         onChange={(e) => setCampaignName(e.target.value)}
                         placeholder="Campaign Name"
@@ -151,7 +148,7 @@ const CreateCampaignModal = (
                         className="mb-4 px-4 py-2 bg-slate-300 rounded-md"
                     ></textarea>
                     <label>Campaign Goal:</label>
-                    <input
+                    <input 
                         type="number"
                         value={campaignGoal}
                         onChange={(e) => handleCampaignGoal(parseInt(e.target.value))}
@@ -159,7 +156,7 @@ const CreateCampaignModal = (
                     />
                     <label>{`Campaign Length (Days)`}</label>
                     <div className="flex space-x-4">
-                        <input
+                        <input 
                             type="number"
                             value={campaignDeadline}
                             onChange={(e) => handleCampaignLengthhange(parseInt(e.target.value))}
@@ -171,9 +168,9 @@ const CreateCampaignModal = (
                         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
                         onClick={handleDeployContract}
                     >{
-                            isDeployingContract ? "Creating Campaign..." : "Create Campaign"
-                        }</button>
-
+                        isDeployingContract ? "Creating Campaign..." : "Create Campaign"
+                    }</button>
+                    
                 </div>
             </div>
         </div>
